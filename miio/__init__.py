@@ -39,6 +39,7 @@ from miio.integrations.chuangmi.camera import ChuangmiCamera
 from miio.integrations.chuangmi.plug import ChuangmiPlug
 from miio.integrations.chuangmi.remote import ChuangmiIr
 from miio.integrations.chunmi.cooker import Cooker
+from miio.integrations.chunmi.cooker_multi import MultiCooker
 from miio.integrations.deerma.humidifier import AirHumidifierJsqs, AirHumidifierMjjsq
 from miio.integrations.dmaker.airfresh import AirFreshA1, AirFreshT2017
 from miio.integrations.dmaker.fan import Fan1C, FanMiot, FanP5
@@ -89,7 +90,11 @@ from miio.integrations.yunmi.waterpurifier import WaterPurifier, WaterPurifierYu
 from miio.integrations.zhimi.airpurifier import AirFresh, AirPurifier, AirPurifierMiot
 from miio.integrations.zhimi.fan import Fan, FanZA5
 from miio.integrations.zhimi.heater import Heater, HeaterMiot
-from miio.integrations.zhimi.humidifier import AirHumidifier, AirHumidifierMiot
+from miio.integrations.zhimi.humidifier import (
+    AirHumidifier,
+    AirHumidifierMiot,
+    AirHumidifierMiotCA6,
+)
 from miio.integrations.zimi.powerstrip import PowerStrip
 from miio.protocol import Message, Utils
 from miio.push_server import EventInfo, PushServer
