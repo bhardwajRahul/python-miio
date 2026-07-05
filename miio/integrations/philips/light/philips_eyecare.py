@@ -6,6 +6,7 @@ import click
 
 from miio import Device, DeviceStatus
 from miio.click_common import command, format_output
+from miio.devicestatus import sensor, setting
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -20,16 +21,25 @@ class PhilipsEyecareStatus(DeviceStatus):
         self.data = data
 
     @property
+    @sensor("Power")
     def power(self) -> str:
         """Power state."""
         return self.data["power"]
 
     @property
+    @sensor("Is On")
     def is_on(self) -> bool:
         """True if the device is turned on."""
         return self.power == "on"
 
     @property
+    @setting(
+        "Brightness",
+        unit="%",
+        setter_name="set_brightness",
+        min_value=1,
+        max_value=100,
+    )
     def brightness(self) -> int:
         """Current brightness of the primary light."""
         return self.data["bright"]
@@ -45,6 +55,13 @@ class PhilipsEyecareStatus(DeviceStatus):
         return self.data["ambstatus"] == "on"
 
     @property
+    @setting(
+        "Ambient Brightness",
+        unit="%",
+        setter_name="set_ambient_brightness",
+        min_value=1,
+        max_value=100,
+    )
     def ambient_brightness(self) -> int:
         """Brightness of the ambient light."""
         return self.data["ambvalue"]
@@ -55,6 +72,12 @@ class PhilipsEyecareStatus(DeviceStatus):
         return self.data["eyecare"] == "on"
 
     @property
+    @setting(
+        "Scene",
+        setter_name="set_scene",
+        min_value=1,
+        max_value=4,
+    )
     def scene(self) -> int:
         """Current fixed scene."""
         return self.data["scene_num"]
@@ -65,6 +88,10 @@ class PhilipsEyecareStatus(DeviceStatus):
         return self.data["bls"] == "on"
 
     @property
+    @sensor(
+        "Delay Off Countdown",
+        unit="min",
+    )
     def delay_off_countdown(self) -> int:
         """Countdown until turning off in minutes."""
         return self.data["dvalue"]

@@ -17,6 +17,7 @@ import click
 
 from miio import Device, DeviceStatus
 from miio.click_common import command, format_output
+from miio.devicestatus import sensor, setting
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -75,16 +76,19 @@ class CameraStatus(DeviceStatus):
         self.data = data
 
     @property
+    @sensor("Type")
     def type(self) -> str:
         """TODO: Type of the camera? Name?"""
         return self.data["app_type"]
 
     @property
+    @sensor("Video Status")
     def video_status(self) -> bool:
         """Video state."""
         return bool(self.data["video_state"])
 
     @property
+    @sensor("Is On")
     def is_on(self) -> bool:
         """True if device is currently on."""
         return self.video_status == 1
@@ -95,6 +99,10 @@ class CameraStatus(DeviceStatus):
         return bool(self.data["md_status"])
 
     @property
+    @setting(
+        "Motion Detection Sensitivity",
+        setter_name="md_sensitivity",
+    )
     def md_sensitivity(self):
         """Motion detection sensitivity."""
         return self.data["mdsensitivity"]
@@ -115,6 +123,7 @@ class CameraStatus(DeviceStatus):
         return self.data["flip_state"]
 
     @property
+    @sensor("Camera Offsets")
     def offsets(self) -> CameraOffset:
         """Camera offset information."""
         return CameraOffset(
@@ -124,6 +133,7 @@ class CameraStatus(DeviceStatus):
         )
 
     @property
+    @sensor("Channel ID")
     def channel_id(self) -> int:
         """TODO: Zigbee channel?"""
         return self.data["channel_id"]
@@ -134,16 +144,19 @@ class CameraStatus(DeviceStatus):
         return self.data["fullstop"] != 0
 
     @property
+    @sensor("P2P ID")
     def p2p_id(self) -> str:
         """P2P ID for video and audio."""
         return self.data["p2p_id"]
 
     @property
+    @sensor("AV ID")
     def av_id(self) -> str:
         """TODO: What is this? ID for the cloud?"""
         return self.data["avID"]
 
     @property
+    @sensor("AV Password")
     def av_password(self) -> str:
         """TODO: What is this? Password for the cloud?"""
         return self.data["avPass"]

@@ -6,6 +6,7 @@ import click
 
 from miio import Device, DeviceException, DeviceStatus
 from miio.click_common import command, format_output
+from miio.devicestatus import sensor, setting
 from miio.utils import deprecated
 
 _LOGGER = logging.getLogger(__name__)
@@ -45,6 +46,7 @@ class ChuangmiPlugStatus(DeviceStatus):
         self.data = data
 
     @property
+    @sensor("Power")
     def power(self) -> bool:
         """Current power state."""
         if "on" in self.data:
@@ -60,6 +62,7 @@ class ChuangmiPlugStatus(DeviceStatus):
         return self.power
 
     @property
+    @sensor("Temperature", unit="°C")
     def temperature(self) -> int:
         return self.data["temperature"]
 
@@ -71,6 +74,7 @@ class ChuangmiPlugStatus(DeviceStatus):
         return None
 
     @property
+    @sensor("Load Power", unit="W")
     def load_power(self) -> float | None:
         """Current power load, if available."""
         if "load_power" in self.data and self.data["load_power"] is not None:
@@ -84,6 +88,7 @@ class ChuangmiPlugStatus(DeviceStatus):
         return self.led
 
     @property
+    @setting("LED", setter_name="set_led")
     def led(self) -> bool | None:
         """True if the wifi led is turned on."""
         if "wifi_led" in self.data and self.data["wifi_led"] is not None:

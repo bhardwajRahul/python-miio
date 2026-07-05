@@ -6,6 +6,7 @@ import click
 
 from miio import Device, DeviceStatus
 from miio.click_common import command, format_output
+from miio.devicestatus import sensor, setting
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -25,41 +26,72 @@ class CeilStatus(DeviceStatus):
         self.data = data
 
     @property
+    @sensor("Power")
     def power(self) -> str:
         """Power state."""
         return self.data["power"]
 
     @property
+    @sensor("Is On")
     def is_on(self) -> bool:
         """True if the device is turned on."""
         return self.power == "on"
 
     @property
+    @setting(
+        "Brightness",
+        setter_name="set_brightness",
+        unit="%",
+        min_value=1,
+        max_value=100,
+        step=1,
+    )
     def brightness(self) -> int:
         """Current brightness."""
         return self.data["bright"]
 
     @property
+    @setting(
+        "Scene",
+        setter_name="set_scene",
+        min_value=1,
+        max_value=4,
+        step=1,
+    )
     def scene(self) -> int:
         """Current fixed scene (brightness & colortemp)."""
         return self.data["snm"]
 
     @property
+    @setting(
+        "Delay Off Countdown",
+        setter_name="delay_off",
+        unit="s",
+    )
     def delay_off_countdown(self) -> int:
         """Countdown until turning off in seconds."""
         return self.data["dv"]
 
     @property
+    @setting(
+        "Color Temperature",
+        setter_name="set_color_temperature",
+        min_value=1,
+        max_value=100,
+        step=1,
+    )
     def color_temperature(self) -> int:
         """Current color temperature."""
         return self.data["cct"]
 
     @property
+    @sensor("Smart Night Light")
     def smart_night_light(self) -> bool:
         """Smart night mode state."""
         return self.data["bl"] == 1
 
     @property
+    @sensor("Automatic Color Temperature")
     def automatic_color_temperature(self) -> bool:
         """Automatic color temperature state."""
         return self.data["ac"] == 1

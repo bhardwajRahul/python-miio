@@ -11,6 +11,7 @@ import click
 
 from miio import DeviceStatus, MiotDevice, UnsupportedFeatureException
 from miio.click_common import command, format_output
+from miio.devicestatus import sensor, setting
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -117,21 +118,37 @@ class HuizuoStatus(DeviceStatus):
         self.data = data
 
     @property
+    @sensor("Is On")
     def is_on(self) -> bool:
         """Return True if device is on."""
         return self.data["power"]
 
     @property
+    @setting(
+        "Brightness",
+        unit="%",
+        setter_name="set_brightness",
+        min_value=0,
+        max_value=100,
+    )
     def brightness(self) -> int:
         """Return current brightness."""
         return self.data["brightness"]
 
     @property
+    @setting(
+        "Color Temperature",
+        unit="K",
+        setter_name="set_color_temp",
+        min_value=3000,
+        max_value=6400,
+    )
     def color_temp(self) -> int:
         """Return current color temperature."""
         return self.data["color_temp"]
 
     @property
+    @sensor("Fan On")
     def is_fan_on(self) -> bool | None:
         """Return True if Fan is on."""
         if "fan_power" in self.data:
@@ -146,6 +163,7 @@ class HuizuoStatus(DeviceStatus):
         return None
 
     @property
+    @sensor("Fan Reverse")
     def is_fan_reverse(self) -> bool | None:
         """Return True if Fan reverse is on."""
         if "fan_motor_reverse" in self.data:
@@ -153,6 +171,7 @@ class HuizuoStatus(DeviceStatus):
         return None
 
     @property
+    @sensor("Fan Mode")
     def fan_mode(self) -> int | None:
         """Return 0 if 'Basic' and 1 if 'Natural wind'."""
         if "fan_mode" in self.data:
@@ -160,6 +179,7 @@ class HuizuoStatus(DeviceStatus):
         return None
 
     @property
+    @sensor("Heater On")
     def is_heater_on(self) -> bool | None:
         """Return True if Heater is on."""
         if "heater_power" in self.data:
@@ -167,6 +187,7 @@ class HuizuoStatus(DeviceStatus):
         return None
 
     @property
+    @sensor("Heater Fault Code")
     def heater_fault_code(self) -> int | None:
         """Return Heater's fault code.
 

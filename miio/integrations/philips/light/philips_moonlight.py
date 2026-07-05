@@ -6,6 +6,7 @@ import click
 
 from miio import Device, DeviceStatus
 from miio.click_common import command, format_output
+from miio.devicestatus import sensor, setting
 from miio.utils import int_to_rgb
 
 _LOGGER = logging.getLogger(__name__)
@@ -23,6 +24,7 @@ class PhilipsMoonlightStatus(DeviceStatus):
         self.data = data
 
     @property
+    @sensor(name="Power")
     def power(self) -> str:
         return self.data["pow"]
 
@@ -31,23 +33,44 @@ class PhilipsMoonlightStatus(DeviceStatus):
         return self.power == "on"
 
     @property
+    @setting(
+        name="Brightness",
+        setter_name="set_brightness",
+        unit="%",
+        min_value=1,
+        max_value=100,
+    )
     def brightness(self) -> int:
         return self.data["bri"]
 
     @property
+    @setting(
+        name="Color Temperature",
+        setter_name="set_color_temperature",
+        min_value=1,
+        max_value=100,
+    )
     def color_temperature(self) -> int:
         return self.data["cct"]
 
     @property
+    @setting(name="RGB", setter_name="set_rgb")
     def rgb(self) -> tuple[int, int, int]:
         """Return color in RGB."""
         return int_to_rgb(int(self.data["rgb"]))
 
     @property
+    @setting(
+        name="Scene",
+        setter_name="set_scene",
+        min_value=1,
+        max_value=6,
+    )
     def scene(self) -> int:
         return self.data["snm"]
 
     @property
+    @sensor(name="Sleep Assistant")
     def sleep_assistant(self) -> int:
         """Example values:
 
@@ -59,24 +82,29 @@ class PhilipsMoonlightStatus(DeviceStatus):
         return self.data["sta"]
 
     @property
+    @sensor(name="Sleep Off Time", unit="s")
     def sleep_off_time(self) -> int:
         return self.data["spr"]
 
     @property
+    @sensor(name="Total Assistant Sleep Time", unit="s")
     def total_assistant_sleep_time(self) -> int:
         return self.data["spt"]
 
     @property
+    @sensor(name="Brand Sleep")
     def brand_sleep(self) -> bool:
         # sp_sleep_open?
         return self.data["ms"] == 1
 
     @property
+    @sensor(name="Brand")
     def brand(self) -> bool:
         # sp_xm_bracelet?
         return self.data["mb"] == 1
 
     @property
+    @sensor(name="Wake Up Time")
     def wake_up_time(self) -> list[int]:
         # Example: [weekdays?, hour, minute]
         return self.data["wkp"]

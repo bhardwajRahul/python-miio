@@ -7,6 +7,7 @@ import click
 
 from miio import Device, DeviceError, DeviceException, DeviceInfo, DeviceStatus
 from miio.click_common import EnumType, command, format_output
+from miio.devicestatus import sensor, setting
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -63,16 +64,23 @@ class AirDehumidifierStatus(DeviceStatus):
         self.device_info = device_info
 
     @property
+    @sensor("Power")
     def power(self) -> str:
         """Power state."""
         return self.data["on_off"]
 
     @property
+    @sensor("Is On")
     def is_on(self) -> bool:
         """True if device is turned on."""
         return self.power == "on"
 
     @property
+    @setting(
+        "Mode",
+        setter_name="set_mode",
+        choices=OperationMode,
+    )
     def mode(self) -> OperationMode:
         """Operation mode.
 
@@ -81,6 +89,7 @@ class AirDehumidifierStatus(DeviceStatus):
         return OperationMode(self.data["mode"])
 
     @property
+    @sensor("Temperature", unit="°C")
     def temperature(self) -> float | None:
         """Current temperature, if available."""
         if "temp" in self.data and self.data["temp"] is not None:
@@ -88,21 +97,25 @@ class AirDehumidifierStatus(DeviceStatus):
         return None
 
     @property
+    @sensor("Humidity", unit="%")
     def humidity(self) -> int:
         """Current humidity."""
         return self.data["humidity"]
 
     @property
+    @setting("Buzzer", setter_name="set_buzzer")
     def buzzer(self) -> bool:
         """True if buzzer is turned on."""
         return self.data["buzzer"] == "on"
 
     @property
+    @setting("LED", setter_name="set_led")
     def led(self) -> bool:
         """LED brightness if available."""
         return self.data["led"] == "on"
 
     @property
+    @setting("Child Lock", setter_name="set_child_lock")
     def child_lock(self) -> bool:
         """Return True if child lock is on."""
         return self.data["child_lock"] == "on"
@@ -125,26 +138,31 @@ class AirDehumidifierStatus(DeviceStatus):
         return None
 
     @property
+    @sensor("Tank Full")
     def tank_full(self) -> bool:
         """The remaining amount of water in percent."""
         return self.data["tank_full"] == "on"
 
     @property
+    @sensor("Compressor Status")
     def compressor_status(self) -> bool:
         """Compressor status."""
         return self.data["compressor_status"] == "on"
 
     @property
+    @sensor("Defrost Status")
     def defrost_status(self) -> bool:
         """Defrost status."""
         return self.data["defrost_status"] == "on"
 
     @property
+    @sensor("Fan St")
     def fan_st(self) -> int:
         """Fan st."""
         return self.data["fan_st"]
 
     @property
+    @sensor("Alarm")
     def alarm(self) -> str:
         """Alarm."""
         return self.data["alarm"]

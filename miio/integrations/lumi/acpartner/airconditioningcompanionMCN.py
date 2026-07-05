@@ -5,6 +5,7 @@ from typing import Any
 
 from miio import Device, DeviceStatus
 from miio.click_common import command, format_output
+from miio.devicestatus import sensor, setting
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -44,11 +45,13 @@ class AirConditioningCompanionStatus(DeviceStatus):
         self.data = data
 
     @property
+    @sensor("Load Power", unit="W")
     def load_power(self) -> int:
         """Current power load of the air conditioner."""
         return int(self.data[-1])
 
     @property
+    @sensor("Power")
     def power(self) -> str:
         """Current power state."""
         return self.data[0]
@@ -59,6 +62,7 @@ class AirConditioningCompanionStatus(DeviceStatus):
         return self.power == "on"
 
     @property
+    @setting("Mode", setter_name="send_command", choices=OperationMode)
     def mode(self) -> OperationMode | None:
         """Current operation mode."""
         try:
@@ -68,6 +72,11 @@ class AirConditioningCompanionStatus(DeviceStatus):
             return None
 
     @property
+    @setting(
+        "Target Temperature",
+        setter_name="send_command",
+        unit="°C",
+    )
     def target_temperature(self) -> int | None:
         """Target temperature."""
         try:
@@ -76,6 +85,7 @@ class AirConditioningCompanionStatus(DeviceStatus):
             return None
 
     @property
+    @setting("Fan Speed", setter_name="send_command", choices=FanSpeed)
     def fan_speed(self) -> FanSpeed | None:
         """Current fan speed."""
         try:
@@ -85,6 +95,7 @@ class AirConditioningCompanionStatus(DeviceStatus):
             return None
 
     @property
+    @setting("Swing Mode", setter_name="send_command", choices=SwingMode)
     def swing_mode(self) -> SwingMode | None:
         """Current swing mode."""
         try:

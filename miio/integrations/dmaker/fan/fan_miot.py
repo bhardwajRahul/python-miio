@@ -5,6 +5,7 @@ import click
 
 from miio import DeviceStatus, MiotDevice
 from miio.click_common import EnumType, command, format_output
+from miio.devicestatus import sensor, setting
 
 
 class OperationMode(enum.Enum):
@@ -189,16 +190,19 @@ class FanStatusMiot(DeviceStatus):
         self.model = model
 
     @property
+    @sensor("Power")
     def power(self) -> str:
         """Power state."""
         return "on" if self.data["power"] else "off"
 
     @property
+    @sensor("Is On")
     def is_on(self) -> bool:
         """True if device is currently on."""
         return self.data["power"]
 
     @property
+    @setting("Mode", setter_name="set_mode", choices=OperationMode)
     def mode(self) -> OperationMode:
         """Operation mode."""
         if self.model == MODEL_FAN_P45:
@@ -206,36 +210,49 @@ class FanStatusMiot(DeviceStatus):
         return OperationMode[OperationModeMiot(self.data["mode"]).name]
 
     @property
+    @setting("Speed", setter_name="set_speed", min_value=0, max_value=100)
     def speed(self) -> int:
         """Speed of the motor."""
         return self.data["fan_speed"]
 
     @property
+    @setting("Oscillate", setter_name="set_oscillate")
     def oscillate(self) -> bool:
         """True if oscillation is enabled."""
         return self.data["swing_mode"]
 
     @property
+    @setting("Angle", setter_name="set_angle")
     def angle(self) -> int:
         """Oscillation angle."""
         return self.data["swing_mode_angle"]
 
     @property
+    @setting(
+        "Delay Off Countdown",
+        setter_name="delay_off",
+        unit="min",
+        min_value=0,
+        max_value=480,
+    )
     def delay_off_countdown(self) -> int:
         """Countdown until turning off in minutes."""
         return self.data["power_off_time"]
 
     @property
+    @setting("LED", setter_name="set_led")
     def led(self) -> bool:
         """True if LED is turned on, if available."""
         return self.data["light"]
 
     @property
+    @setting("Buzzer", setter_name="set_buzzer")
     def buzzer(self) -> bool:
         """True if buzzer is turned on."""
         return self.data["buzzer"]
 
     @property
+    @setting("Child Lock", setter_name="set_child_lock")
     def child_lock(self) -> bool:
         """True if child lock is on."""
         return self.data["child_lock"]
@@ -265,46 +282,61 @@ class FanStatus1C(DeviceStatus):
         self.data = data
 
     @property
+    @sensor("Power")
     def power(self) -> str:
         """Power state."""
         return "on" if self.data["power"] else "off"
 
     @property
+    @sensor("Is On")
     def is_on(self) -> bool:
         """True if device is currently on."""
         return self.data["power"]
 
     @property
+    @setting("Mode", setter_name="set_mode", choices=OperationMode)
     def mode(self) -> OperationMode:
         """Operation mode."""
         return OperationMode[OperationModeMiot(self.data["mode"]).name]
 
     @property
+    @setting("Speed", setter_name="set_speed", min_value=1, max_value=3)
     def speed(self) -> int:
         """Speed of the motor."""
         return self.data["fan_level"]
 
     @property
+    @setting("Oscillate", setter_name="set_oscillate")
     def oscillate(self) -> bool:
         """True if oscillation is enabled."""
         return self.data["swing_mode"]
 
     @property
+    @setting(
+        "Delay Off Countdown",
+        setter_name="delay_off",
+        unit="min",
+        min_value=0,
+        max_value=480,
+    )
     def delay_off_countdown(self) -> int:
         """Countdown until turning off in minutes."""
         return self.data["power_off_time"]
 
     @property
+    @setting("LED", setter_name="set_led")
     def led(self) -> bool:
         """True if LED is turned on."""
         return self.data["light"]
 
     @property
+    @setting("Buzzer", setter_name="set_buzzer")
     def buzzer(self) -> bool:
         """True if buzzer is turned on."""
         return self.data["buzzer"]
 
     @property
+    @setting("Child Lock", setter_name="set_child_lock")
     def child_lock(self) -> bool:
         """True if child lock is on."""
         return self.data["child_lock"]

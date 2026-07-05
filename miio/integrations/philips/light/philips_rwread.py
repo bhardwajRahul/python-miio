@@ -7,6 +7,7 @@ import click
 
 from miio import Device, DeviceStatus
 from miio.click_common import EnumType, command, format_output
+from miio.devicestatus import sensor, setting
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -35,41 +36,70 @@ class PhilipsRwreadStatus(DeviceStatus):
         self.data = data
 
     @property
+    @sensor("Power")
     def power(self) -> str:
         """Power state."""
         return self.data["power"]
 
     @property
+    @sensor("Is On")
     def is_on(self) -> bool:
         """True if the device is turned on."""
         return self.power == "on"
 
     @property
+    @setting(
+        "Brightness",
+        setter_name="set_brightness",
+        unit="%",
+        min_value=1,
+        max_value=100,
+        step=1,
+    )
     def brightness(self) -> int:
         """Current brightness."""
         return self.data["bright"]
 
     @property
+    @setting(
+        "Delay Off Countdown",
+        setter_name="delay_off",
+        unit="s",
+    )
     def delay_off_countdown(self) -> int:
         """Countdown until turning off in seconds."""
         return self.data["dv"]
 
     @property
+    @setting(
+        "Scene",
+        setter_name="set_scene",
+        min_value=1,
+        max_value=4,
+        step=1,
+    )
     def scene(self) -> int:
         """Current fixed scene."""
         return self.data["snm"]
 
     @property
+    @setting("Motion Detection", setter_name="set_motion_detection")
     def motion_detection(self) -> bool:
         """True if motion detection is enabled."""
         return self.data["flm"] == 1
 
     @property
+    @setting(
+        "Motion Detection Sensitivity",
+        setter_name="set_motion_detection_sensitivity",
+        choices=MotionDetectionSensitivity,
+    )
     def motion_detection_sensitivity(self) -> MotionDetectionSensitivity:
         """The sensitivity of the motion detection."""
         return MotionDetectionSensitivity(self.data["flmv"])
 
     @property
+    @setting("Child Lock", setter_name="set_child_lock")
     def child_lock(self) -> bool:
         """True if child lock is enabled."""
         return self.data["chl"] == 1

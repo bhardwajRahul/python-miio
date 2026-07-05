@@ -7,6 +7,7 @@ from enum import Enum
 import click
 
 from miio.click_common import command, format_output
+from miio.devicestatus import sensor, setting
 from miio.miot_device import DeviceStatus as DeviceStatusContainer
 from miio.miot_device import MiotDevice, MiotMapping
 from miio.updater import OneShotServer
@@ -305,34 +306,42 @@ class DreameVacuumStatus(DeviceStatusContainer):
         self.model = model
 
     @property
+    @sensor("Battery Level", unit="%")
     def battery_level(self) -> str:
         return self.data["battery_level"]
 
     @property
+    @sensor("Brush Left Time", unit="h")
     def brush_left_time(self) -> str:
         return self.data["brush_left_time"]
 
     @property
+    @sensor("Side Brush Left Time", unit="h")
     def brush_left_time2(self) -> str:
         return self.data["brush_left_time2"]
 
     @property
+    @sensor("Side Brush Life Level", unit="%")
     def brush_life_level2(self) -> str:
         return self.data["brush_life_level2"]
 
     @property
+    @sensor("Brush Life Level", unit="%")
     def brush_life_level(self) -> str:
         return self.data["brush_life_level"]
 
     @property
+    @sensor("Filter Left Time", unit="h")
     def filter_left_time(self) -> str:
         return self.data["filter_left_time"]
 
     @property
+    @sensor("Filter Life Level", unit="%")
     def filter_life_level(self) -> str:
         return self.data["filter_life_level"]
 
     @property
+    @sensor("Device Fault")
     def device_fault(self) -> FaultStatus | None:
         try:
             return FaultStatus(self.data["device_fault"])
@@ -341,6 +350,7 @@ class DreameVacuumStatus(DeviceStatusContainer):
             return None
 
     @property
+    @sensor("Charging State")
     def charging_state(self) -> ChargingState | None:
         try:
             return ChargingState(self.data["charging_state"])
@@ -349,6 +359,7 @@ class DreameVacuumStatus(DeviceStatusContainer):
             return None
 
     @property
+    @sensor("Operating Mode")
     def operating_mode(self) -> OperatingMode | None:
         try:
             return OperatingMode(self.data["operating_mode"])
@@ -357,6 +368,7 @@ class DreameVacuumStatus(DeviceStatusContainer):
             return None
 
     @property
+    @sensor("Device Status")
     def device_status(self) -> DeviceStatus | None:
         try:
             return DeviceStatus(self.data["device_status"])
@@ -365,58 +377,79 @@ class DreameVacuumStatus(DeviceStatusContainer):
             return None
 
     @property
+    @sensor("Timer Enable")
     def timer_enable(self) -> str:
         return self.data["timer_enable"]
 
     @property
+    @sensor("Start Time")
     def start_time(self) -> str:
         return self.data["start_time"]
 
     @property
+    @sensor("Stop Time")
     def stop_time(self) -> str:
         return self.data["stop_time"]
 
     @property
+    @sensor("Map View")
     def map_view(self) -> str:
         return self.data["map_view"]
 
     @property
+    @setting(
+        "Volume",
+        setter_name="set_sound_volume",
+        unit="%",
+        min_value=0,
+        max_value=100,
+        step=1,
+    )
     def volume(self) -> str:
         return self.data["volume"]
 
     @property
+    @sensor("Voice Package")
     def voice_package(self) -> str:
         return self.data["voice_package"]
 
     @property
+    @sensor("Timezone")
     def timezone(self) -> str:
         return self.data["timezone"]
 
     @property
+    @sensor("Cleaning Time", unit="min")
     def cleaning_time(self) -> str:
         return self.data["cleaning_time"]
 
     @property
+    @sensor("Cleaning Area", unit="m²")
     def cleaning_area(self) -> str:
         return self.data["cleaning_area"]
 
     @property
+    @sensor("First Clean Time")
     def first_clean_time(self) -> str:
         return self.data["first_clean_time"]
 
     @property
+    @sensor("Total Clean Time", unit="min")
     def total_clean_time(self) -> str:
         return self.data["total_clean_time"]
 
     @property
+    @sensor("Total Clean Times")
     def total_clean_times(self) -> str:
         return self.data["total_clean_times"]
 
     @property
+    @sensor("Total Clean Area", unit="m²")
     def total_clean_area(self) -> str:
         return self.data["total_clean_area"]
 
     @property
+    @setting("Cleaning Mode", setter_name="set_fan_speed")
     def cleaning_mode(self):
         cleaning_mode = self.data["cleaning_mode"]
         cleaning_mode_enum_class = _get_cleaning_mode_enum_class(self.model)
@@ -431,19 +464,23 @@ class DreameVacuumStatus(DeviceStatusContainer):
             return None
 
     @property
+    @sensor("Life Sieve", unit="%")
     def life_sieve(self) -> str | None:
         return self.data.get("life_sieve")
 
     @property
+    @sensor("Life Brush Side", unit="%")
     def life_brush_side(self) -> str | None:
         return self.data.get("life_brush_side")
 
     @property
+    @sensor("Life Brush Main", unit="%")
     def life_brush_main(self) -> str | None:
         return self.data.get("life_brush_main")
 
     # TODO: get/set water flow for Dreame 1C
     @property
+    @setting("Water Flow", setter_name="set_waterflow", choices=WaterFlow)
     def water_flow(self) -> WaterFlow | None:
         try:
             water_flow = self.data["water_flow"]
@@ -456,6 +493,7 @@ class DreameVacuumStatus(DeviceStatusContainer):
             return None
 
     @property
+    @sensor("Water Box Carriage Attached")
     def is_water_box_carriage_attached(self) -> bool | None:
         """Return True if water box carriage (mop) is installed, None if sensor not
         present."""

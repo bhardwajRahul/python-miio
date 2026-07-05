@@ -5,6 +5,7 @@ from typing import Any
 import click
 
 from miio.click_common import EnumType, command, format_output
+from miio.devicestatus import sensor, setting
 from miio.miot_device import DeviceStatus, MiotDevice
 
 _LOGGER = logging.getLogger(__name__)
@@ -74,16 +75,23 @@ class AirHumidifierJsqsStatus(DeviceStatus):
         return self.data["power"]
 
     @property
+    @sensor(name="Power")
     def power(self) -> str:
         """Return power state."""
         return "on" if self.is_on else "off"
 
     @property
+    @sensor(name="Error")
     def error(self) -> int:
         """Return error state."""
         return self.data["fault"]
 
     @property
+    @setting(
+        name="Mode",
+        setter_name="set_mode",
+        choices=OperationMode,
+    )
     def mode(self) -> OperationMode:
         """Return current operation mode."""
 
@@ -103,11 +111,13 @@ class AirHumidifierJsqsStatus(DeviceStatus):
     # Environment
 
     @property
+    @sensor(name="Relative Humidity", unit="%")
     def relative_humidity(self) -> int | None:
         """Return current humidity."""
         return self.data.get("relative_humidity")
 
     @property
+    @sensor(name="Temperature", unit="C")
     def temperature(self) -> float | None:
         """Return current temperature, if available."""
         return self.data.get("temperature")
@@ -115,6 +125,7 @@ class AirHumidifierJsqsStatus(DeviceStatus):
     # Alarm
 
     @property
+    @setting(name="Buzzer", setter_name="set_buzzer")
     def buzzer(self) -> bool | None:
         """Return True if buzzer is on."""
         return self.data.get("buzzer")
@@ -122,6 +133,7 @@ class AirHumidifierJsqsStatus(DeviceStatus):
     # Indicator Light
 
     @property
+    @setting(name="LED Light", setter_name="set_light")
     def led_light(self) -> bool | None:
         """Return status of the LED."""
         return self.data.get("led_light")
@@ -129,16 +141,19 @@ class AirHumidifierJsqsStatus(DeviceStatus):
     # Other
 
     @property
+    @sensor(name="Tank Filed")
     def tank_filed(self) -> bool | None:
         """Return the tank filed."""
         return self.data.get("tank_filed")
 
     @property
+    @sensor(name="Water Shortage Fault")
     def water_shortage_fault(self) -> bool | None:
         """Return water shortage fault."""
         return self.data.get("water_shortage_fault")
 
     @property
+    @setting(name="Overwet Protect", setter_name="set_overwet_protect")
     def overwet_protect(self) -> bool | None:
         """Return True if overwet mode is active."""
         return self.data.get("overwet_protect")
