@@ -1,21 +1,33 @@
 import logging
 from functools import partial
+from typing import TypeVar
+
+import attr
 
 from miio import MiotDevice
 from miio.click_common import command
 from miio.descriptors import AccessFlags, ActionDescriptor, PropertyDescriptor
 from miio.miot_cloud import MiotCloud
 from miio.miot_device import MiotMapping
-from miio.miot_models import DeviceModel, MiotAccess, MiotAction, MiotService
+from miio.miot_models import (
+    DeviceModel,
+    MiotAccess,
+    MiotAction,
+    MiotBaseModel,
+    MiotService,
+)
 
+from .meta import Metadata
 from .status import GenericMiotStatus
 
 _LOGGER = logging.getLogger(__name__)
+_D = TypeVar("_D", ActionDescriptor, PropertyDescriptor)
 
 
 class GenericMiot(MiotDevice):
     # we support all devices, if not, it is a responsibility of caller to verify that
     _supported_models = ["*"]
+    _meta = Metadata.load()
 
     def __init__(
         self,
@@ -70,11 +82,29 @@ class GenericMiot(MiotDevice):
 
         return GenericMiotStatus(response, self)
 
+    def _enrich_with_metadata(self, entity: MiotBaseModel, desc: _D) -> _D:
+        """Return an enriched copy of the descriptor with metadata applied.
+
+        The original descriptor is stored in extras['original'] so callers can
+        access the raw device-given name if needed.
+        """
+        meta = self._meta.get_metadata(entity)
+        if meta is None or meta.description == desc.name:
+            return desc
+
+        _LOGGER.debug("Renamed %s to %s", desc.name, meta.description)
+        return attr.evolve(
+            desc,
+            name=meta.description,
+            extras={**desc.extras, "original": desc},
+        )
+
     def _create_action(self, act: MiotAction) -> ActionDescriptor | None:
         """Create action descriptor for miot action."""
         desc = act.get_descriptor()
         call_action = partial(self.call_action_by, act.siid, act.aiid)
         desc.method = call_action
+        desc = self._enrich_with_metadata(act, desc)
 
         return desc
 
@@ -100,6 +130,7 @@ class GenericMiot(MiotDevice):
                 continue
 
             desc = prop.get_descriptor()
+            desc = self._enrich_with_metadata(prop, desc)
 
             # Add readable properties to the status query
             if AccessFlags.Read in desc.access:

@@ -244,7 +244,7 @@ class MiotProperty(MiotBaseModel):
             current = f"{selected} (value: {value})"
             return current
 
-        if self.format == bool:
+        if self.format is bool:
             return bool(value)
 
         unit_map = {
